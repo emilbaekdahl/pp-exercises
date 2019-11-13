@@ -96,22 +96,22 @@ buildTreeFromString = buildTree . (map $ uncurry Leaf) . charFrequencies
 -- of Maybe.
 encodeChar :: Node -> Char -> BitString
 encodeChar tree char = case encodeChar' tree [] of
-                         Just b  -> b
-                         Nothing -> []
+                         Just bitString -> bitString
+                         Nothing        -> []
   where encodeChar' :: Node -> BitString -> Maybe BitString
         encodeChar' (Leaf c _) bitString
           | c == char = Just bitString
           | otherwise = Nothing
         encodeChar' (Branch t1 t2 _) bitString
-          | Just b <- encodeChar' t1 (bitString ++ [Zero]) = Just b
-          | Just b <- encodeChar' t2 (bitString ++ [One])  = Just b
+          | Just bitString' <- encodeChar' t1 (bitString ++ [Zero]) = Just bitString'
+          | Just bitString' <- encodeChar' t2 (bitString ++ [One])  = Just bitString'
           | otherwise = Nothing
 
 
 -- | Encodes a String as a BitString according to a Huffman tree. This maps
 -- every character in the String to a BitString using encodeChar.
 encode :: Node -> String -> BitString
-encode tree = foldl (\acc char -> acc ++ encodeChar tree char) []
+encode tree = foldl (\bitString char -> bitString ++ encodeChar tree char) []
 
 
 -- | Decodes a BitString to a String according to a Huffman tree. This function
@@ -125,10 +125,10 @@ decode tree bitString = decode' tree bitString
   where decode' :: Node -> BitString -> String
         decode' (Branch _ _ _) [] = ""
         decode' (Leaf char _) bitString = char : decode' tree bitString
-        decode' (Branch t1 t2 _) (head:tail) = decode' subtree tail
+        decode' (Branch tree1 tree2 _) (head:tail) = decode' subtree tail
           where subtree = case head of
-                            Zero -> t1
-                            One  -> t2
+                            Zero -> tree1
+                            One  -> tree2
 
 
 -- | The main function of the program exposes a simple command-line interface
