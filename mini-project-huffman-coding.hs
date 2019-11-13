@@ -49,9 +49,9 @@ getWeight (Branch _ _ weight) = weight
 -- | Finds the frequency of characters occuring in a String by mapping each
 -- character to a tuple containing the character in question and its frequency.
 charFrequencies :: String -> [(Char, Int)]
-charFrequencies str = map (\char -> (char, charFrequency char)) $ nub str
-  where charFrequency :: Char -> Int
-        charFrequency char = length [c | c <- str, c == char]
+charFrequencies str = map (\char -> (char, frequency char)) $ nub str
+  where frequency :: Char -> Int
+        frequency char = length [c | c <- str, c == char]
 
 
 -- | Inserts a node in a list of Nodes such that ordering by weight is
@@ -91,9 +91,9 @@ buildTreeFromString = buildTree . (map $ uncurry Leaf) . charFrequencies
 -- string depending on whether we take the left or right branch. If none of the
 -- branches contain the character in question, we return Nothing.
 --
--- Remark: This function uses the Maybe Monad for handling none-exsistent
--- missing in the tree. We could also just throw an error and thus get around
--- the use of Maybe.
+-- Remark: This function uses the Maybe Monad for handling missing characters
+-- in the tree. We could also just throw an error and thus get around the use
+-- of Maybe.
 encodeChar :: Node -> Char -> BitString
 encodeChar tree char = case encodeChar' tree [] of
                          Just b  -> b
